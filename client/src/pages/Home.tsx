@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, BookOpen, Mic2, Globe, MessageSquare, Zap } from "lucide-react";
 import { useState } from "react";
+import PracticeTray from "@/components/PracticeTray";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DAYS_DATA from "@/lib/days";
@@ -18,6 +19,7 @@ import DAYS_DATA from "@/lib/days";
 
 export default function Home() {
   const [selectedDay, setSelectedDay] = useState(1);
+  const [showPractice, setShowPractice] = useState(false);
   const currentDay = DAYS_DATA.find((d) => d.day === selectedDay) || DAYS_DATA[0];
 
   return (
@@ -188,6 +190,46 @@ export default function Home() {
                       ></iframe>
                     </div>
                   </div>
+                )}
+
+                {/* Simplified Day 1 Landing: Top‑100 + 20‑min checklist + single recommended video + Start CTA */}
+                {currentDay.extras?.top100Words && (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-semibold text-foreground">Top 100 High‑Frequency Words</h3>
+                    <div className="bg-white/50 p-4 rounded border border-border max-h-56 overflow-auto">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        {currentDay.extras!.top100Words.map((w: string, i: number) => (
+                          <div key={i} className="text-sm px-2 py-1 bg-transparent">{w}</div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold mb-2">20‑minute Daily Checklist</h4>
+                      <ol className="list-decimal ml-5 text-sm text-foreground space-y-1">
+                        <li>5 minutes — Review today's 20 words with flashcards (read aloud)</li>
+                        <li>7 minutes — Shadow the recommended audio/video (listen & repeat)</li>
+                        <li>5 minutes — Practice phrase assembly (S‑V‑O) and cloze</li>
+                        <li>3 minutes — Record a short 1–2 sentence response and review</li>
+                      </ol>
+                    </div>
+
+                    <div className="flex gap-3">
+                      {currentDay.extras?.recommendedVideos && currentDay.extras.recommendedVideos[0] ? (
+                        <button onClick={() => window.open(currentDay.extras?.recommendedVideos?.[0]?.url || "", "_blank")} className="px-4 py-2 bg-primary text-primary-foreground rounded">Watch Recommended Video</button>
+                      ) : null}
+
+                      <button onClick={() => setShowPractice(true)} className="px-4 py-2 border rounded">Start 20‑min Session</button>
+                    </div>
+                  </div>
+                )}
+
+                {showPractice && (
+                  <PracticeTray
+                    recommendedVideo={currentDay.extras?.recommendedVideos?.[0]?.url || null}
+                    topWords={currentDay.extras?.top100Words || []}
+                    onClose={() => setShowPractice(false)}
+                  />
                 )}
 
                 {/* Activities */}

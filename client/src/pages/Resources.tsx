@@ -8,6 +8,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "wouter";
 import ShadowPlayer from "@/components/ShadowPlayer";
+import Cloze from "@/components/Cloze";
+import SyntaxLock from "@/components/SyntaxLock";
+import TypingGym from "@/components/TypingGym";
+import MicroImmersionPlayer from "@/components/MicroImmersionPlayer";
+import { recommendAudio, setUserLevel, getUserLevel } from "@/lib/audioEngine";
 
 interface VocabList {
   id: number;
@@ -38,6 +43,11 @@ interface AudioResource {
 export default function Resources(): React.ReactNode {
   const [activeTab, setActiveTab] = useState("vocab");
   const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const [clozePhrase, setClozePhrase] = useState<string | null>(null);
+  const [clozeAnswer, setClozeAnswer] = useState<string | undefined>(undefined);
+  const [syntaxSentence, setSyntaxSentence] = useState<string | null>(null);
+  const [showTypingGym, setShowTypingGym] = useState(false);
+  const [microUrl, setMicroUrl] = useState<string | null>(null);
 
   const vocabularyLists: VocabList[] = [
     {
@@ -214,6 +224,14 @@ export default function Resources(): React.ReactNode {
     url: resource.audioUrl as string,
   }));
 
+  // auto-recommend audio for user level
+  const userLevel = typeof window !== "undefined" ? getUserLevel() : "Beginner";
+  const recommended = recommendAudio(bbcAudioOptions as any, userLevel as any);
+  // if nothing loaded, prefill player with recommended audio
+  React.useEffect(() => {
+    if (recommended && !playerSrc) setPlayerSrc(recommended as string);
+  }, [recommended]);
+
   // Export CSV for a vocab list
   function exportVocabCSV(list: VocabList) {
     if (typeof window === "undefined") return;
@@ -381,6 +399,14 @@ export default function Resources(): React.ReactNode {
                             >
                               <Mic2 className="w-5 h-5" />
                             </button>
+                            <div className="flex flex-col gap-2">
+                              <Button size="sm" variant="outline" onClick={() => { setClozePhrase(item.phrase); setClozeAnswer(item.phrase.replace(/\.\.\.$/, "").trim()); }}>
+                                Practice Cloze
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => setSyntaxSentence(item.phrase.replace(/"/g, "").replace(/\?$/, ""))}>
+                                Syntax Lock
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -451,6 +477,9 @@ export default function Resources(): React.ReactNode {
                         >
                           Load into player
                         </Button>
+                        <Button size="sm" variant="ghost" onClick={() => resource.url && setMicroUrl(resource.url)}>
+                          Open in Immersion Player
+                        </Button>
                       </div>
                     </Card>
                   ))}
@@ -465,6 +494,24 @@ export default function Resources(): React.ReactNode {
                   <ShadowPlayer src={playerSrc} audioOptions={bbcAudioOptions} />
                 </Card>
               </div>
+
+              {microUrl && (
+                <div className="w-full mt-6">
+                  <MicroImmersionPlayer videoUrl={microUrl} />
+                </div>
+              )}
+
+              {clozePhrase && (
+                <Cloze phrase={clozePhrase} answer={clozeAnswer} onClose={() => setClozePhrase(null)} />
+              )}
+
+              {syntaxSentence && (
+                <SyntaxLock sentence={syntaxSentence} onClose={() => setSyntaxSentence(null)} />
+              )}
+
+              {showTypingGym && (
+                <TypingGym prompt="Translate and type quickly: I would like a coffee." duration={30} onClose={() => setShowTypingGym(false)} />
+              )}
             </Tabs>
           </div>
         </section>
@@ -515,6 +562,7 @@ export default function Resources(): React.ReactNode {
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">Open Flashcards</Button>
               </Link>
               <Button size="lg" className="bg-primary/10 hover:bg-primary/20 text-primary">Begin Your Learning</Button>
+              <Button size="lg" variant="outline" onClick={() => setShowTypingGym(true)}>Typing Gym</Button>
             </div>
           </div>
         </section>

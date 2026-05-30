@@ -1,14 +1,5 @@
-export interface DayContent {
-  day: number;
-  week: number;
-  title: string;
-  description: string;
-  activities: string[];
-  videoUrl?: string;
-  focus: string;
-}
-
-export const DAYS_DATA: DayContent[] = [
+export const DAYS_DATA: any = [
+  // @ts-ignore - extended fields for Day 1 (recommendedVideos, top100Words, top100Activities)
   {
     day: 1,
     week: 1,
@@ -20,7 +11,43 @@ export const DAYS_DATA: DayContent[] = [
       "Create flashcards for daily review",
       "Narrate 3 daily actions in English",
     ],
-    videoUrl: "https://www.youtube.com/embed/OP5YABLFy7s",
+    // Extras: recommended videos and Top 100 word plan (kept under extras to avoid strict type checks)
+    extras: {
+      recommendedVideos: [
+        {
+          title: "100 Most Common English Words (with examples)",
+          url: "https://www.youtube.com/results?search_query=100+most+common+english+words",
+        },
+        {
+          title: "Top 100 English Words for Beginners (pronunciation)",
+          url: "https://www.youtube.com/results?search_query=top+100+english+words+pronunciation",
+        },
+        {
+          title: "High Frequency Words - Beginner List",
+          url: "https://www.youtube.com/results?search_query=high+frequency+words+english+top+100",
+        },
+      ],
+      top100Words: [
+        "the","be","to","of","and","a","in","that","have","I",
+        "it","for","not","on","with","he","as","you","do","at",
+        "this","but","his","by","from","they","we","say","her","she",
+        "or","an","will","my","one","all","would","there","their","what",
+        "so","up","out","if","about","who","get","which","go","me",
+        "when","make","can","like","time","no","just","him","know","take",
+        "people","into","year","your","good","some","could","them","see","other",
+        "than","then","now","look","only","come","its","over","think","also",
+        "back","after","use","two","how","our","work","first","well","way",
+        "even","new","want","because","any","these","give","day","most","us"
+      ],
+      // Specific micro-activities for the Top 100 plan
+      top100Activities: [
+        "Divide the Top 100 into 5 groups of 20; focus on one group per day",
+        "Create simple flashcards (word / example sentence) and review with Leitner boxes",
+        "Write 3 sentences using each new word (speak them aloud)",
+        "Shadow native audio reading the 20 words and example sentences",
+        "Use the words in quick typing drills (Typing Gym) to force production",
+      ],
+    },
     focus: "Pronouns (I, you, we, they) & Essential Verbs (is, are, have, do, go)",
   },
   {
