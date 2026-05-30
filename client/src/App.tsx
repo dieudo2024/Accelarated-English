@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import Blueprint from "@/pages/Blueprint";
 import Progress from "@/pages/Progress";
+import Day from "@/pages/Day";
+import Week from "@/pages/Week";
 import Resources from "@/pages/Resources";
 import Flashcards from "@/pages/Flashcards";
 import FAQ from "@/pages/FAQ";
@@ -21,6 +23,8 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/blueprint"} component={Blueprint} />
+      <Route path={"/week/:num"} component={Week} />
+      <Route path={"/day/:id"} component={Day} />
       <Route path={"/progress"} component={Progress} />
       <Route path={"/flashcards"} component={Flashcards} />
       <Route path={"/resources"} component={Resources} />

@@ -31,6 +31,8 @@ interface AudioResource {
   level: string;
   description: string;
   url: string;
+  audioUrl?: string;
+  articleUrl?: string;
 }
 
 export default function Resources(): React.ReactNode {
@@ -144,59 +146,73 @@ export default function Resources(): React.ReactNode {
   const audioResources: AudioResource[] = [
     {
       id: 1,
-      title: "BBC Learning English - 6 Minute English",
+      title: "BBC Learning English - Living with debt",
       type: "Podcast",
       duration: "~6 min",
-      level: "Beginner to Intermediate",
-      description: "Short English lessons with natural conversation, perfect for shadowing practice",
-      url: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english"
+      level: "Beginner",
+      description: "Clear BBC dialogue with practical vocabulary and slower pacing for shadowing practice",
+      url: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260528",
+      audioUrl: "https://downloads.bbc.co.uk/learningenglish/features/6min/260528_6_minute_english_living_with_debt_download.mp3",
+      articleUrl: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260528"
     },
     {
       id: 2,
-      title: "TED-Ed Videos with Subtitles",
+      title: "BBC Learning English - How reading shapes your brain",
       type: "Video",
       duration: "5-10 min",
-      level: "All Levels",
-      description: "Educational videos with English subtitles for micro-immersion practice",
-      url: "https://www.ted.com/"
+      level: "Intermediate",
+      description: "A BBC lesson with richer academic vocabulary and natural pacing",
+      url: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260514",
+      audioUrl: "https://downloads.bbc.co.uk/learningenglish/features/6min/260514_6_minute_english_how_reading_shapes_your_brain_download.mp3",
+      articleUrl: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260514"
     },
     {
       id: 3,
-      title: "Easy English YouTube Channel",
-      type: "Video",
-      duration: "10-15 min",
-      level: "Beginner to Intermediate",
-      description: "Street interviews and real conversations with authentic English",
-      url: "https://www.youtube.com/@EasyEnglish"
+      title: "BBC Learning English - Should we eat ultra-processed food?",
+      type: "Podcast",
+      duration: "~6 min",
+      level: "Advanced",
+      description: "Higher-density BBC conversation for stretch practice and stronger comprehension",
+      url: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260430",
+      audioUrl: "https://downloads.bbc.co.uk/learningenglish/features/6min/260430_6_minute_english_should_we_eat_ultra_processed_food_download.mp3",
+      articleUrl: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260430"
     },
     {
       id: 4,
-      title: "Spotify: Easy English Podcasts",
+      title: "BBC Learning English - 6 Minute English archive",
       type: "Podcast",
       duration: "Various",
-      level: "Beginner to Intermediate",
-      description: "Curated playlists of podcasts designed for English learners",
-      url: "https://www.spotify.com/"
+      level: "All Levels",
+      description: "The wider BBC 6 Minute English archive for continued practice",
+      url: "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026"
     },
     {
       id: 5,
-      title: "Shadowing Technique Practice",
+      title: "BBC Learning English - Course pages",
       type: "Exercise",
       duration: "15-20 min",
-      level: "Beginner to Advanced",
-      description: "Step-by-step guide to the shadowing technique with practice material",
-      url: "#"
+      level: "All Levels",
+      description: "BBC course pages for easy, medium, and hard study paths",
+      url: "https://www.bbc.co.uk/learningenglish/english/courses"
     },
     {
       id: 6,
-      title: "Forvo - Pronunciation Dictionary",
+      title: "BBC Learning English - Podcast downloads",
       type: "Reference",
       duration: "On-demand",
       level: "All Levels",
-      description: "Hear real native speakers pronounce any word or phrase",
-      url: "https://www.forvo.com/"
+      description: "A direct route to the BBC podcast feed for more audio lessons",
+      url: "https://www.bbc.co.uk/programmes/p02pc9tn/episodes/downloads"
     }
   ];
+
+  const bbcAudioOptions = audioResources.filter((resource) => resource.audioUrl).map((resource) => ({
+    id: String(resource.id),
+    title: resource.title,
+    level: resource.level,
+    description: resource.description,
+    url: resource.audioUrl as string,
+  }));
 
   // Export CSV for a vocab list
   function exportVocabCSV(list: VocabList) {
@@ -420,7 +436,7 @@ export default function Resources(): React.ReactNode {
                           variant="ghost"
                           className="flex-1 text-primary hover:bg-primary/10"
                           onClick={() => window.open(resource.url, "_blank")}
-                          disabled={resource.url === "#"}
+                          disabled={!resource.url}
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Explore Resource
@@ -430,8 +446,8 @@ export default function Resources(): React.ReactNode {
                           size="sm"
                           variant="outline"
                           className="flex-1"
-                          onClick={() => setPlayerSrc(resource.url)}
-                          disabled={!(resource.url && /\.(mp3|ogg|wav|m4a)$/i.test(resource.url))}
+                          onClick={() => resource.audioUrl && setPlayerSrc(resource.audioUrl)}
+                          disabled={!resource.audioUrl}
                         >
                           Load into player
                         </Button>
@@ -445,8 +461,8 @@ export default function Resources(): React.ReactNode {
               <div className="w-full mt-6">
                 <Card className="p-4">
                   <h3 className="font-bold mb-2">Shadowing Player</h3>
-                  <p className="text-sm text-muted-foreground mb-3">Paste an audio URL or load a compatible resource from the list above. Use the loop segment controls to practice repeating phrases.</p>
-                  <ShadowPlayer src={playerSrc} />
+                  <p className="text-sm text-muted-foreground mb-3">Choose a curated BBC Learning English lesson by level, or load one from the list above. Use the loop segment controls to practice repeating phrases.</p>
+                  <ShadowPlayer src={playerSrc} audioOptions={bbcAudioOptions} />
                 </Card>
               </div>
             </Tabs>

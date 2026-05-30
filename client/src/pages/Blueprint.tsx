@@ -2,6 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock, Zap, BookOpen, Mic2, Globe } from "lucide-react";
+import { Link } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -21,7 +22,7 @@ interface CorePillar {
   example: string;
 }
 
-export default function Blueprint(): React.ReactNode {
+export default function Blueprint(): React.JSX.Element {
   const strategies: Strategy[] = [
     {
       id: 1,
@@ -117,53 +118,46 @@ export default function Blueprint(): React.ReactNode {
     }
   ];
 
+  const weeks = [
+    { week: "Week 1", focus: "Foundation", content: "Top 100 words, basic tenses, SVO structure", id: 1 },
+    { week: "Week 2", focus: "Fluency", content: "Functional phrases, shadowing, contextual vocab", id: 2 },
+    { week: "Week 3", focus: "Immersion", content: "Micro-immersion bubble, real-time output start", id: 3 },
+    { week: "Week 4", focus: "Mastery", content: "Confident speaking, complex ideas, refinement", id: 4 }
+  ];
+
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/10 to-background py-12 md:py-20">
+      <main>
+        <section className="py-16">
           <div className="container max-w-4xl">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 font-playfair">
-              The Accelerated English Blueprint
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              A scientifically-backed methodology to transform from absolute beginner to confident speaker in 30 days through high-frequency focus and immediate output.
-            </p>
-          </div>
-        </section>
+            <h1 className="text-4xl font-bold mb-6 font-playfair">Blueprint</h1>
 
-        {/* Core Strategies */}
-        <section className="py-16 bg-background">
-          <div className="container max-w-4xl">
-            <h2 className="text-3xl font-bold text-foreground mb-12 font-playfair">5 Core Strategies</h2>
-            <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {strategies.map((strategy) => (
-                <Card key={strategy.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-lg transition-shadow">
-                  <div className="p-8">
-                    <div className="flex items-start gap-4 mb-6">
-                      <div className="flex-shrink-0">{strategy.icon}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-2xl font-bold text-foreground font-playfair">
-                            {strategy.id}. {strategy.title}
-                          </h3>
+                <Card key={strategy.id} className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">{strategy.icon}</div>
+                    <div className="w-full">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold mb-1">{strategy.title}</h3>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-primary font-medium">
                           <Clock className="w-4 h-4" />
                           <span>{strategy.timeline}</span>
                         </div>
                       </div>
+                      <p className="text-muted-foreground mb-4">{strategy.description}</p>
+                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {strategy.details.map((detail, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span className="text-foreground">{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <p className="text-muted-foreground mb-4">{strategy.description}</p>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {strategy.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          <span className="text-foreground">{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
                 </Card>
               ))}
@@ -197,35 +191,17 @@ export default function Blueprint(): React.ReactNode {
           <div className="container max-w-4xl">
             <h2 className="text-3xl font-bold text-foreground mb-12 font-playfair">Your 30-Day Blueprint</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              {[
-                {
-                  week: "Week 1",
-                  focus: "Foundation",
-                  content: "Top 100 words, basic tenses, SVO structure"
-                },
-                {
-                  week: "Week 2",
-                  focus: "Fluency",
-                  content: "Functional phrases, shadowing, contextual vocab"
-                },
-                {
-                  week: "Week 3",
-                  focus: "Immersion",
-                  content: "Micro-immersion bubble, real-time output start"
-                },
-                {
-                  week: "Week 4",
-                  focus: "Mastery",
-                  content: "Confident speaking, complex ideas, refinement"
-                }
-              ].map((w, idx) => (
-                <Card key={idx} className="p-4 text-center hover:shadow-lg transition-shadow">
-                  <h3 className="text-lg font-bold text-primary mb-2">{w.week}</h3>
-                  <p className="text-sm font-semibold text-foreground mb-2">{w.focus}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{w.content}</p>
-                </Card>
+              {weeks.map((w) => (
+                <Link key={w.id} href={`/week/${w.id}`}>
+                  <Card className="p-4 text-center hover:shadow-lg transition-shadow cursor-pointer">
+                    <h3 className="text-lg font-bold text-primary mb-2">{w.week}</h3>
+                    <p className="text-sm font-semibold text-foreground mb-2">{w.focus}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{w.content}</p>
+                  </Card>
+                </Link>
               ))}
             </div>
+
             <Card className="p-8 bg-primary/5 border-l-4 border-l-primary">
               <h3 className="font-bold text-foreground mb-4">Key Success Factors</h3>
               <ul className="space-y-2">

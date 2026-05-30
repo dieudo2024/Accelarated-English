@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Circle, Flame, TrendingUp, Trophy, Target } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Link } from "wouter";
 
 interface DayProgress {
   day: number;
@@ -193,6 +194,12 @@ export default function Progress(): React.ReactNode {
                           <p className="text-3xl font-bold text-primary">{weekCompleted}/7</p>
                           <p className="text-sm text-muted-foreground">days completed</p>
                         </div>
+                      </div>
+
+                      <div className="flex justify-end mb-4">
+                        <Link href={`/week/${tabValue.replace('week','')}`}>
+                          <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground hover:bg-primary/90">Open Week</button>
+                        </Link>
                       </div>
 
                       <div className="bg-secondary rounded-full h-2 w-full mb-6 overflow-hidden">
