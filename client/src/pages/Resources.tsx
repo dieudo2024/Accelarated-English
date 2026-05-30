@@ -7,6 +7,7 @@ import { BookOpen, Headphones, Mic2, MessageSquare, Download, ExternalLink } fro
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "wouter";
+import ShadowPlayer from "@/components/ShadowPlayer";
 
 interface VocabList {
   id: number;
@@ -136,6 +137,8 @@ export default function Resources(): React.ReactNode {
       ]
     }
   ];
+
+  const [playerSrc, setPlayerSrc] = useState<string | null>(null);
 
   const audioResources: AudioResource[] = [
     {
@@ -346,22 +349,41 @@ export default function Resources(): React.ReactNode {
                         </div>
                       </div>
 
-                      <div className="p-4 bg-secondary/20 border-t border-border">
+                      <div className="p-4 bg-secondary/20 border-t border-border flex gap-2">
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="w-full text-primary hover:bg-primary/10"
+                          className="flex-1 text-primary hover:bg-primary/10"
                           onClick={() => window.open(resource.url, "_blank")}
                           disabled={resource.url === "#"}
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
                           Explore Resource
                         </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setPlayerSrc(resource.url)}
+                          disabled={!(resource.url && /\.(mp3|ogg|wav|m4a)$/i.test(resource.url))}
+                        >
+                          Load into player
+                        </Button>
                       </div>
                     </Card>
                   ))}
                 </div>
               </TabsContent>
+
+              {/* Shadowing Player */}
+              <div className="w-full mt-6">
+                <Card className="p-4">
+                  <h3 className="font-bold mb-2">Shadowing Player</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Paste an audio URL or load a compatible resource from the list above. Use the loop segment controls to practice repeating phrases.</p>
+                  <ShadowPlayer src={playerSrc} />
+                </Card>
+              </div>
             </Tabs>
           </div>
         </section>
