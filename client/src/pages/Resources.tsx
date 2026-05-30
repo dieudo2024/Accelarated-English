@@ -35,6 +35,7 @@ interface AudioResource {
 
 export default function Resources(): React.ReactNode {
   const [activeTab, setActiveTab] = useState("vocab");
+  const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
   const vocabularyLists: VocabList[] = [
     {
@@ -197,6 +198,59 @@ export default function Resources(): React.ReactNode {
     }
   ];
 
+  // Export CSV for a vocab list
+  function exportVocabCSV(list: VocabList) {
+    if (typeof window === "undefined") return;
+    const rows = [["word", "pronunciation", "example"], ...list.words.map(w => [escapeCsv(w.word), escapeCsv(w.pronunciation), escapeCsv(w.example)])];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${list.title.replace(/\s+/g, "_")}_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function printVocabFlashcards(list: VocabList) {
+    if (typeof window === "undefined") return;
+    const win = window.open("", "_blank", "noopener,noreferrer");
+    if (!win) return;
+    const styles = `body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; padding:16px} .card{width:45%;display:inline-block;border:1px solid #ddd;border-radius:6px;padding:12px;margin:6px}`;
+    const html = `<!doctype html><html><head><title>${escapeHtml(list.title)}</title><style>${styles}</style></head><body>${list.words.map(w=> `<div class="card"><div style="font-weight:700">${escapeHtml(w.word)}</div><div style="color:#555">${escapeHtml(w.pronunciation)}</div><div style="margin-top:6px">${escapeHtml(w.example)}</div></div>`).join("")}<script>window.onload=()=>window.print();</script></body></html>`;
+    win.document.open(); win.document.write(html); win.document.close();
+  }
+
+  function escapeCsv(value: string) {
+    if (value == null) return "";
+    const needs = /[",\n]/.test(value);
+    let out = value.replace(/"/g, '""');
+    if (needs) out = `"${out}"`;
+    return out;
+  }
+
+  function escapeHtml(s: string) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function playPhrase(text: string) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    try {
+      const ut = new SpeechSynthesisUtterance(text);
+      ut.rate = 0.95;
+      // prefer a voice that contains 'en' if available
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const v = voices.find(v => /en/i.test(v.lang)) || voices[0];
+        if (v) ut.voice = v;
+      }
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(ut);
+    } catch (e) {
+      console.warn("TTS failed", e);
+    }
+  }
+
   return (
     <>
       <Header />
@@ -245,10 +299,15 @@ export default function Resources(): React.ReactNode {
                           <h3 className="text-xl font-bold text-foreground mb-2 font-playfair">{list.title}</h3>
                           <Badge variant="secondary">{list.category}</Badge>
                         </div>
-                        <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => exportVocabCSV(list)}>
+                            <Download className="w-4 h-4 mr-2" />
+                            CSV
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => printVocabFlashcards(list)}>
+                            Print
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="overflow-x-auto">
@@ -297,7 +356,13 @@ export default function Resources(): React.ReactNode {
                               <p className="font-semibold text-foreground mb-1">"{item.phrase}"</p>
                               <p className="text-sm text-muted-foreground">{item.usage}</p>
                             </div>
-                            <button className="flex-shrink-0 text-primary hover:text-primary/80 transition-colors" title="Play audio">
+                            <button
+                              className="flex-shrink-0 text-primary hover:text-primary/80 transition-colors"
+                              title={ttsSupported ? "Play phrase (TTS)" : "TTS not supported"}
+                              onClick={() => playPhrase(item.phrase)}
+                              aria-label={`Play phrase ${item.phrase}`}
+                              disabled={!ttsSupported}
+                            >
                               <Mic2 className="w-5 h-5" />
                             </button>
                           </div>

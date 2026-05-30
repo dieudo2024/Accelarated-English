@@ -159,6 +159,8 @@ export default function Flashcards(): React.ReactNode {
           <div className="mb-6">
             <Button className="bg-primary text-primary-foreground mr-2" onClick={() => setDeck(loadDeck())}>Reset Deck</Button>
             <Button variant="outline" onClick={handleAddSample}>Add Sample Card</Button>
+            <Button variant="ghost" className="ml-2" onClick={() => exportDeckCSV(deck)}>Export CSV</Button>
+            <Button variant="outline" className="ml-2" onClick={() => printDeckFlashcards(deck)}>Print Flashcards</Button>
           </div>
 
           <Card className="p-8">
@@ -209,4 +211,66 @@ export default function Flashcards(): React.ReactNode {
       <Footer />
     </>
   );
+}
+
+// Helpers for export/print
+function exportDeckCSV(deck: CardItem[]) {
+  if (typeof window === "undefined") return;
+  const rows = [
+    ["id", "front", "back", "reps", "interval", "ef", "nextReview"],
+    ...deck.map((c) => [
+      c.id,
+      escapeCsv(c.front),
+      escapeCsv(c.back),
+      String(c.reps),
+      String(c.interval),
+      String(c.ef),
+      new Date(c.nextReview).toISOString(),
+    ]),
+  ];
+
+  const csv = rows.map((r) => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ae_flashcards_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeCsv(value: string) {
+  if (value == null) return "";
+  const needs = /[",\n]/.test(value);
+  let out = value.replace(/"/g, '""');
+  if (needs) out = `"${out}"`;
+  return out;
+}
+
+function printDeckFlashcards(deck: CardItem[]) {
+  if (typeof window === "undefined") return;
+  const win = window.open("", "_blank", "noopener,noreferrer");
+  if (!win) return;
+  const styles = `
+    body{font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding:20px}
+    .card{width:45%;display:inline-block;border:1px solid #ddd;border-radius:6px;padding:12px;margin:6px;vertical-align:top}
+    .front{font-weight:700;font-size:16px;margin-bottom:8px}
+    .back{color:#444;font-size:14px}
+  `;
+
+  const html = `<!doctype html><html><head><title>Flashcards</title><style>${styles}</style></head><body>${deck
+    .map(
+      (c) => `<div class="card"><div class="front">${escapeHtml(c.front)}</div><div class="back">${escapeHtml(
+        c.back
+      )}</div></div>`
+    )
+    .join("")}<script>window.onload=()=>{window.print();}</script></body></html>`;
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+function escapeHtml(s: string) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
 }
