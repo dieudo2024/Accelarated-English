@@ -1,3 +1,5 @@
+import { Link } from "wouter";
+
 /**
  * Footer Component
  * Design: Warm minimalist with subtle branding
@@ -20,19 +22,19 @@ export default function Footer() {
             <h4 className="font-semibold text-foreground">Learning</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/blueprint" className="text-muted-foreground hover:text-primary transition-colors">
                   30-Day Roadmap
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
                   Strategies
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/resources" className="text-muted-foreground hover:text-primary transition-colors">
                   Resources
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -42,19 +44,19 @@ export default function Footer() {
             <h4 className="font-semibold text-foreground">Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
                   Contact
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
                   Blog
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -64,14 +66,14 @@ export default function Footer() {
             <h4 className="font-semibold text-foreground">Legal</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
                   Privacy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
                   Terms
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 /**
  * Header Component
  * Design: Warm minimalist with subtle navigation
  */
 export default function Header() {
+  const [, setLocation] = useLocation();
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container max-w-6xl flex items-center justify-between h-16">
@@ -19,19 +22,19 @@ export default function Header() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          <a href="#" className="text-foreground hover:text-primary transition-colors">
+          <Link href="/blueprint" className="text-foreground hover:text-primary transition-colors">
             Blueprint
-          </a>
-          <a href="#" className="text-foreground hover:text-primary transition-colors">
+          </Link>
+          <Link href="/progress" className="text-foreground hover:text-primary transition-colors">
             Progress
-          </a>
-          <a href="#" className="text-foreground hover:text-primary transition-colors">
+          </Link>
+          <Link href="/resources" className="text-foreground hover:text-primary transition-colors">
             Resources
-          </a>
+          </Link>
         </nav>
 
         {/* CTA Button */}
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => setLocation('/blueprint')}>
           Get Started
         </Button>
       </div>
