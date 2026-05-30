@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import Blueprint from "@/pages/Blueprint";
 import Progress from "@/pages/Progress";
 import Resources from "@/pages/Resources";
+import Flashcards from "@/pages/Flashcards";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/blueprint"} component={Blueprint} />
       <Route path={"/progress"} component={Progress} />
+      <Route path={"/flashcards"} component={Flashcards} />
       <Route path={"/resources"} component={Resources} />
       <Route path={"/faq"} component={FAQ} />
       <Route path={"/contact"} component={Contact} />

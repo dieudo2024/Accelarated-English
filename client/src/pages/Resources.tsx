@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Headphones, Mic2, MessageSquare, Download, ExternalLink } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Link } from "wouter";
 
 interface VocabList {
   id: number;
@@ -406,9 +407,12 @@ export default function Resources(): React.ReactNode {
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               Start with the vocabulary lists and phrase banks. Use the audio resources for daily shadowing practice.
             </p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              Begin Your Learning
-            </Button>
+            <div className="flex justify-center gap-4">
+              <Link href="/flashcards">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">Open Flashcards</Button>
+              </Link>
+              <Button size="lg" className="bg-primary/10 hover:bg-primary/20 text-primary">Begin Your Learning</Button>
+            </div>
           </div>
         </section>
       </main>
