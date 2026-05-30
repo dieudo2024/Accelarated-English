@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,10 +14,22 @@ interface DayProgress {
 }
 
 export default function Progress(): React.ReactNode {
-  // Initialize with some sample completed days
-  const [completedDays, setCompletedDays] = useState<Set<number>>(
-    new Set([1, 2, 3, 4, 5, 6, 8, 9])
-  );
+  // Initialize from localStorage if available, otherwise fallback to sample days
+  const [completedDays, setCompletedDays] = useState<Set<number>>(() => {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        const raw = window.localStorage.getItem("ae_progress_completed_days");
+        if (raw) {
+          const arr = JSON.parse(raw) as number[];
+          return new Set(arr);
+        }
+      }
+    } catch (e) {
+      // ignore and fall back
+    }
+
+    return new Set([1, 2, 3, 4, 5, 6, 8, 9]);
+  });
 
   const daysData: DayProgress[] = Array.from({ length: 30 }, (_, i) => ({
     day: i + 1,
@@ -35,6 +47,20 @@ export default function Progress(): React.ReactNode {
     }
     setCompletedDays(newCompleted);
   };
+
+  // Persist completed days to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(
+          "ae_progress_completed_days",
+          JSON.stringify(Array.from(completedDays))
+        );
+      }
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [completedDays]);
 
   // Stats
   const stats = useMemo(() => {
