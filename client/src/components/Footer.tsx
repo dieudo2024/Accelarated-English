@@ -82,6 +82,18 @@ export default function Footer() {
         {/* Bottom */}
         <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
           <p>&copy; 2026 Accelerated English Blueprint. All rights reserved.</p>
+          <div className="mt-3">
+            <button
+              className="text-xs text-primary underline"
+              onClick={() => {
+                try {
+                  localStorage.removeItem("seenTour");
+                } catch (e) {}
+                // dispatch a global event that pages can listen to
+                window.dispatchEvent(new Event("replayTour"));
+              }}
+            >Replay Tour</button>
+          </div>
         </div>
       </div>
     </footer>

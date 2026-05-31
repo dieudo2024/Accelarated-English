@@ -1,6 +1,26 @@
+export interface DayExtras {
+  recommendedVideos?: { title: string; url: string }[];
+  top100Words?: string[];
+  top100Activities?: string[];
+}
+
+export interface DayContent {
+  day: number;
+  week: number;
+  title: string;
+  description: string;
+  activities: string[];
+  videoUrl?: string;
+  extras?: DayExtras;
+  // Backwards-compatible optional fields (some entries previously used top-level extras)
+  recommendedVideos?: { title: string; url: string }[];
+  top100Words?: string[];
+  top100Activities?: string[];
+  focus: string;
+}
+
 export const DAYS_DATA: any = [
-  // @ts-ignore - extended fields for Day 1 (recommendedVideos, top100Words, top100Activities)
-  {
+  ({
     day: 1,
     week: 1,
     title: "Foundation: Top 100 Words",
@@ -16,15 +36,15 @@ export const DAYS_DATA: any = [
       recommendedVideos: [
         {
           title: "100 Most Common English Words (with examples)",
-          url: "https://www.youtube.com/results?search_query=100+most+common+english+words",
+          url: "https://www.youtube.com/embed/hWYiI4euoDM",
         },
         {
           title: "Top 100 English Words for Beginners (pronunciation)",
-          url: "https://www.youtube.com/results?search_query=top+100+english+words+pronunciation",
+          url: "https://www.youtube.com/embed/ZG_OtQD2XuY",
         },
         {
           title: "High Frequency Words - Beginner List",
-          url: "https://www.youtube.com/results?search_query=high+frequency+words+english+top+100",
+          url: "https://www.youtube.com/embed/OP5YABLFy7s",
         },
       ],
       top100Words: [
@@ -49,7 +69,7 @@ export const DAYS_DATA: any = [
       ],
     },
     focus: "Pronouns (I, you, we, they) & Essential Verbs (is, are, have, do, go)",
-  },
+  } as any),
   {
     day: 2,
     week: 1,
@@ -458,4 +478,4 @@ export const DAYS_DATA: any = [
   },
 ];
 
-export default DAYS_DATA;
+export default DAYS_DATA as unknown as DayContent[];

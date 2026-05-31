@@ -5,6 +5,7 @@ import { CheckCircle2, Clock, Zap, BookOpen, Mic2, Globe } from "lucide-react";
 import { Link } from "wouter";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CtaLegend from "@/components/CtaLegend";
 
 interface Strategy {
   id: number;
@@ -234,12 +235,11 @@ export default function Blueprint(): React.JSX.Element {
               Follow this blueprint for 30 days and watch your English fluency skyrocket. Your journey to confident communication starts today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Start Your 30-Day Journey
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                View Progress Tracking
-              </Button>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground" title="Start: begin the 30‑day plan">Start</Button>
+              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10" title="Review: see progress and analytics">Review</Button>
+            </div>
+            <div className="mt-4">
+              <CtaLegend />
             </div>
           </div>
         </section>

@@ -2,11 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, BookOpen, Mic2, Globe, MessageSquare, Zap } from "lucide-react";
-import { useState } from "react";
+import Tour from "@/components/Tour";
+import DayChecklist from "@/components/DayChecklist";
+import { toEmbedUrl } from "@/lib/safeVideo";
+import CtaLegend from "@/components/CtaLegend";
 import PracticeTray from "@/components/PracticeTray";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DAYS_DATA from "@/lib/days";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 
 /**
  * Accelerated English Blueprint - Main Learning Platform
@@ -18,9 +23,19 @@ import DAYS_DATA from "@/lib/days";
 
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const [selectedDay, setSelectedDay] = useState(1);
   const [showPractice, setShowPractice] = useState(false);
-  const currentDay = DAYS_DATA.find((d) => d.day === selectedDay) || DAYS_DATA[0];
+  const [showTour, setShowTour] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+
+  // Listen for a global 'replayTour' event (Footer can dispatch this)
+  useEffect(() => {
+    const handler = () => setShowTour(true);
+    window.addEventListener("replayTour", handler as EventListener);
+    return () => window.removeEventListener("replayTour", handler as EventListener);
+  }, []);
+  const currentDay = DAYS_DATA.find((d: any) => d.day === selectedDay) || DAYS_DATA[0];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -35,7 +50,7 @@ export default function Home() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
-        <div className="relative z-10 container max-w-4xl">
+        <div className="relative z-20 container max-w-4xl">
           <div className="space-y-6">
             <div className="space-y-3">
               <h1 className="text-6xl font-bold text-foreground leading-tight">
@@ -46,12 +61,12 @@ export default function Home() {
               </p>
             </div>
             <div className="flex gap-4 pt-4">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Start Your Journey
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                Learn More
-              </Button>
+              <Button size="lg" aria-label="Start" className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => { setSelectedDay(1); document.getElementById('day-detail')?.scrollIntoView({ behavior: 'smooth' }); }}>Start</Button>
+              <Button size="lg" variant="outline" aria-label="Practice" className="border-primary text-primary hover:bg-primary/10" onClick={() => setShowPractice(true)}>Practice</Button>
+              <Button size="lg" variant="ghost" aria-label="Tour" onClick={() => setShowTour(true)}>Tour</Button>
+            </div>
+            <div className="mt-4">
+              <CtaLegend />
             </div>
           </div>
         </div>
@@ -123,7 +138,7 @@ export default function Home() {
             {[1, 2, 3, 4].map((week) => (
               <TabsContent key={week} value={`week${week}`} className="space-y-4">
                 <div className="grid gap-4">
-                  {DAYS_DATA.filter((d) => d.week === week).map((day) => (
+                  {DAYS_DATA.filter((d: any) => d.week === week).map((day: any) => (
                     <Card
                       key={day.day}
                       className={`p-6 cursor-pointer border-2 transition-all ${
@@ -131,7 +146,11 @@ export default function Home() {
                           ? "border-primary bg-primary/5"
                           : "border-border hover:border-primary/50"
                       }`}
-                      onClick={() => setSelectedDay(day.day)}
+                      onClick={() => {
+                        setSelectedDay(day.day);
+                        setLocation(`/day/${day.day}`);
+                      }}
+                      title={`Open Day ${day.day}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -156,7 +175,7 @@ export default function Home() {
 
       {/* Day Detail Section */}
       {selectedDay && (
-        <section className="py-20 bg-background">
+        <section id="day-detail" className="py-20 bg-background">
           <div className="container max-w-6xl">
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Left: Day Info */}
@@ -179,15 +198,23 @@ export default function Home() {
                   <div className="space-y-4">
                     <h3 className="text-2xl font-semibold text-foreground">Learning Video</h3>
                     <div className="aspect-video rounded-lg overflow-hidden border-2 border-border">
-                      <iframe
-                        width="100%"
-                        height="100%"
-                        src={currentDay.videoUrl}
-                        title={currentDay.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
+                      {/* Prefer embed-friendly URLs; fallback to external open */}
+                      {toEmbedUrl(currentDay.videoUrl) ? (
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={toEmbedUrl(currentDay.videoUrl) as string}
+                          title={currentDay.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      ) : (
+                        <div className="p-6 text-center">
+                          <p className="text-sm text-muted-foreground">This video cannot be embedded — open externally.</p>
+                          <Button onClick={() => window.open(currentDay.videoUrl, "_blank")}>Watch</Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -196,13 +223,16 @@ export default function Home() {
                 {currentDay.extras?.top100Words && (
                   <div className="space-y-6">
                     <h3 className="text-2xl font-semibold text-foreground">Top 100 High‑Frequency Words</h3>
-                    <div className="bg-white/50 p-4 rounded border border-border max-h-56 overflow-auto">
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                        {currentDay.extras!.top100Words.map((w: string, i: number) => (
-                          <div key={i} className="text-sm px-2 py-1 bg-transparent">{w}</div>
-                        ))}
+                    <details className="bg-white/50 p-4 rounded border border-border">
+                      <summary className="cursor-pointer font-medium">Show / hide Top 100 words</summary>
+                      <div className="mt-3 max-h-56 overflow-auto">
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                          {currentDay.extras!.top100Words.map((w: string, i: number) => (
+                            <div key={i} className="text-sm px-2 py-1 bg-transparent">{w}</div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </details>
 
                     <div>
                       <h4 className="font-semibold mb-2">20‑minute Daily Checklist</h4>
@@ -216,13 +246,21 @@ export default function Home() {
 
                     <div className="flex gap-3">
                       {currentDay.extras?.recommendedVideos && currentDay.extras.recommendedVideos[0] ? (
-                        <button onClick={() => window.open(currentDay.extras?.recommendedVideos?.[0]?.url || "", "_blank")} className="px-4 py-2 bg-primary text-primary-foreground rounded">Watch Recommended Video</button>
+                        <Button onClick={() => {
+                          const url = currentDay.extras?.recommendedVideos?.[0]?.url;
+                          const embed = toEmbedUrl(url);
+                          if (embed) window.open(embed, "_blank");
+                          else window.open(url || "", "_blank");
+                        }}>Watch Recommended</Button>
                       ) : null}
 
-                      <button onClick={() => setShowPractice(true)} className="px-4 py-2 border rounded">Start 20‑min Session</button>
+                      <Button onClick={() => setShowPractice(true)}>Start</Button>
+                      <Button variant="outline" onClick={() => setShowChecklist(true)}>How to use Day 1</Button>
                     </div>
                   </div>
                 )}
+
+              {showChecklist && <DayChecklist onClose={() => setShowChecklist(false)} />}
 
                 {showPractice && (
                   <PracticeTray
@@ -236,7 +274,7 @@ export default function Home() {
                 <div className="space-y-4">
                   <h3 className="text-2xl font-semibold text-foreground">Today's Activities</h3>
                   <div className="space-y-3">
-                    {currentDay.activities.map((activity, idx) => (
+                    {currentDay.activities.map((activity: any, idx: number) => (
                       <div key={idx} className="flex gap-4 p-4 bg-white/50 rounded-lg border border-border">
                         <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-sm font-bold">
                           {idx + 1}
@@ -281,9 +319,7 @@ export default function Home() {
                   </ul>
                 </Card>
 
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6">
-                  Mark Day {currentDay.day} Complete
-                </Button>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6">Review</Button>
               </div>
             </div>
           </div>
@@ -297,13 +333,12 @@ export default function Home() {
           <p className="text-lg opacity-90 max-w-2xl mx-auto">
             The Accelerated English Blueprint combines proven language learning techniques with practical daily activities. Start today and speak with confidence in 30 days.
           </p>
-          <Button size="lg" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-            Begin Day 1 Now
-          </Button>
+          <Button size="lg" variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90" onClick={() => { setSelectedDay(1); setShowPractice(false); setTimeout(() => document.getElementById('day-detail')?.scrollIntoView({ behavior: 'smooth' }), 100); }}>Start Day 1</Button>
         </div>
       </section>
 
       <Footer />
+      {showTour && <Tour onClose={() => setShowTour(false)} />}
     </div>
   );
 }

@@ -58,7 +58,14 @@ export function ThemeProvider({
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
+    // Graceful fallback: avoid crashing when provider is missing (useful for sandboxed students)
+    if (import.meta.env.DEV) {
+      // In dev, make this stand out so maintainers notice missing provider
+      console.error("ThemeProvider missing — falling back to default theme. Wrap your app with <ThemeProvider /> to ensure consistent styles.");
+    } else {
+      console.warn("ThemeProvider missing — falling back to default theme");
+    }
+    return { theme: "light" as Theme, switchable: false } as ThemeContextType;
   }
   return context;
 }

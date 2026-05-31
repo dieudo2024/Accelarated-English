@@ -13,6 +13,7 @@ import SyntaxLock from "@/components/SyntaxLock";
 import TypingGym from "@/components/TypingGym";
 import MicroImmersionPlayer from "@/components/MicroImmersionPlayer";
 import { recommendAudio, setUserLevel, getUserLevel } from "@/lib/audioEngine";
+import CtaLegend from "@/components/CtaLegend";
 
 interface VocabList {
   id: number;
@@ -491,7 +492,11 @@ export default function Resources(): React.ReactNode {
                 <Card className="p-4">
                   <h3 className="font-bold mb-2">Shadowing Player</h3>
                   <p className="text-sm text-muted-foreground mb-3">Choose a curated BBC Learning English lesson by level, or load one from the list above. Use the loop segment controls to practice repeating phrases.</p>
-                  <ShadowPlayer src={playerSrc} audioOptions={bbcAudioOptions} />
+                  {typeof window !== 'undefined' ? (
+                    <ShadowPlayer src={playerSrc} audioOptions={bbcAudioOptions} />
+                  ) : (
+                    <div className="p-4 text-sm text-muted-foreground">Audio player unavailable in this environment.</div>
+                  )}
                 </Card>
               </div>
 
@@ -559,13 +564,16 @@ export default function Resources(): React.ReactNode {
             </p>
             <div className="flex justify-center gap-4">
               <Link href="/flashcards">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">Open Flashcards</Button>
+                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground" title="Practice: open flashcards and practice flow">Practice</Button>
               </Link>
-              <Button size="lg" className="bg-primary/10 hover:bg-primary/20 text-primary">Begin Your Learning</Button>
-              <Button size="lg" variant="outline" onClick={() => setShowTypingGym(true)}>Typing Gym</Button>
+              <Button size="lg" className="bg-primary/10 hover:bg-primary/20 text-primary" title="Start: begin a guided session">Start</Button>
+              <Button size="lg" variant="outline" onClick={() => setShowTypingGym(true)} title="Practice Typing: open the Typing Gym">Practice Typing</Button>
             </div>
           </div>
         </section>
+        <div className="container max-w-4xl mt-4">
+          <CtaLegend />
+        </div>
       </main>
       <Footer />
     </>
