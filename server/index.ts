@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import vocabRouter from "./api/vocab";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,10 @@ async function startServer() {
       : path.resolve(__dirname, "..", "dist", "public");
 
   app.use(express.static(staticPath));
+
+  // API
+  app.use(express.json({ limit: "1mb" }));
+  app.use("/api", vocabRouter as any);
 
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {

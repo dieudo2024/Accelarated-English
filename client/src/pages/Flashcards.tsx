@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { queueReview, startSyncDaemon } from "@/lib/vocabSync";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
@@ -23,12 +24,70 @@ function saveDeck(deck: CoreWordCard[]) {
 
 export default function Flashcards(): React.ReactNode {
   const [deck, setDeck] = useState<CoreWordCard[]>(() => getStoredCoreDeck(STORAGE_KEY));
+  const [serverReady, setServerReady] = useState(false);
   const [showBack, setShowBack] = useState(false);
   const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     saveDeck(deck);
   }, [deck]);
+
+  useEffect(() => {
+    // start background sync for queued reviews
+    try {
+      startSyncDaemon();
+    } catch {}
+  }, []);
+
+  // Sync with backend: seed core words if missing, then load server word list and build deck mapping
+  useEffect(() => {
+    let mounted = true;
+
+    async function initServerDeck() {
+      try {
+        const coreResp = await fetch("/api/coreWords");
+        if (!coreResp.ok) throw new Error("no api");
+        const words = await coreResp.json();
+
+        if (Array.isArray(words) && words.length === 0) {
+          // seed from local CORE_WORDS (strings)
+          const payload = CORE_WORDS.map((w) => ({ word: w, meta: { back: `Core word: ${w}` }, level: "core" }));
+          await fetch("/api/seed-core", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        }
+
+        // fetch again to get server ids
+        const after = await fetch("/api/coreWords");
+        const serverWords = await after.json();
+
+        if (!mounted) return;
+
+        if (Array.isArray(serverWords) && serverWords.length > 0) {
+          // build deck mapping server ids to local cards
+          const serverDeck: CoreWordCard[] = serverWords.map((w: any) => ({
+            id: String(w.id),
+            front: w.word,
+            back: (w.meta && typeof w.meta === "string" ? (() => { try { return JSON.parse(w.meta).back || ""; } catch { return w.meta; } })() : (w.meta?.back || "")) || "",
+            box: 1,
+            reps: 0,
+            interval: 0,
+            ef: 2.5,
+            nextReview: 0,
+          }));
+
+          setDeck(serverDeck);
+          setServerReady(true);
+        }
+      } catch (e) {
+        // API not available; keep local deck
+      }
+    }
+
+    initServerDeck();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // tick "now" every 30s so due list updates
   useEffect(() => {
@@ -46,7 +105,17 @@ export default function Flashcards(): React.ReactNode {
       return prev.map((c) => {
         if (c.id !== cardId) return c;
 
-        return reviewCoreWordCard(c, quality, Date.now());
+        const updated = reviewCoreWordCard(c, quality, Date.now());
+
+        // queue review for offline-first sync; also attempt immediate enqueue
+        const maybeNum = Number(cardId);
+        if (!Number.isNaN(maybeNum)) {
+          try {
+            queueReview({ wordId: maybeNum, quality });
+          } catch {}
+        }
+
+        return updated;
       });
     });
 

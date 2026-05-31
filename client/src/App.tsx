@@ -1,13 +1,14 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Router, Switch } from "wouter";
 import Blueprint from "@/pages/Blueprint";
 import Progress from "@/pages/Progress";
 import Day from "@/pages/Day";
 import Week from "@/pages/Week";
 import Resources from "@/pages/Resources";
 import Flashcards from "@/pages/Flashcards";
+import Analytics from "@/pages/Analytics";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
 import Blog from "@/pages/Blog";
@@ -18,7 +19,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
 
-function Router() {
+function AppRouter() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -27,6 +28,7 @@ function Router() {
       <Route path={"/day/:id"} component={Day} />
       <Route path={"/progress"} component={Progress} />
       <Route path={"/flashcards"} component={Flashcards} />
+      <Route path={"/analytics"} component={Analytics} />
       <Route path={"/resources"} component={Resources} />
       <Route path={"/faq"} component={FAQ} />
       <Route path={"/contact"} component={Contact} />
@@ -54,7 +56,9 @@ function App() {
       >
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Router base={import.meta.env.BASE_URL}>
+            <AppRouter />
+          </Router>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
